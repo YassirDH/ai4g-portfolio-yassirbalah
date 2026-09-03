@@ -2,8 +2,8 @@
 
 > **This is your portfolio.** Everything you build, hand in and learn during the minor lives here.
 
-- **Name:** _your name here_
-- **Student number:** _your student number here_
+- **Name:** _Yassir Balah_
+- **Student number:** 26095270
 - **Cohort / year:** _e.g. 2026-2027_
 
 ---
