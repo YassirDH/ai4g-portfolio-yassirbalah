@@ -10,12 +10,9 @@ Built during **AI for Good — Hackathon 1** as a one-week prototype.
 
 ## Live demo
 
-| | |
-|---|---|
-| **Bolt project** | https://bolt.new/p/70633023 |
-| **Deployed version** | _[paste deployed link here]_ |
+**Try the app:** https://learn-from-mistakes-4aet.bolt.host
 
-> Note: the Bolt project link opens the project in the Bolt editor. Use the deployed link to try the app without a Bolt account.
+The project in the Bolt editor: https://bolt.new/p/70633023
 
 ## Screenshots
 
@@ -70,10 +67,7 @@ Then open the local URL shown in the terminal.
 |---|---|
 | [`README.md`](README.md) | This file |
 | [`ETHICAL_REFLECTION.md`](ETHICAL_REFLECTION.md) | Ethical reflection on exclusion, assumptions, misuse and mitigations |
-| [`PRESENTATION.md`](PRESENTATION.md) | Readable version of the pitch presentation |
 | [`Learn_From_Mistakes_Presentation.pptx`](Learn_From_Mistakes_Presentation.pptx) | The original slide deck |
-| [`project/`](project) | Source code of the prototype |
-| [`docs/`](docs) | Screenshots used in this README |
 
 ---
 
