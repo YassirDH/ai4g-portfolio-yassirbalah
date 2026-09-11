@@ -95,5 +95,7 @@ The main flow can be demonstrated in under two minutes.
 - Specific prompts work better than vague "make it better" requests.
 - Testing navigation, state and data logic still matters.
 - Ethical choices are part of product design, not an afterthought.
+- Bolt runs the app inside a WebContainer in the browser, so the dev server is
+  not a real localhost on your own machine.
 
 > "AI can build fast — but we still have to define, test and judge what it builds."
