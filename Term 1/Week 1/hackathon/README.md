@@ -21,7 +21,7 @@ Built during **AI for Good — Hackathon 1** as a one-week prototype.
 
 | Topic selection | Question flow |
 |---|---|
-| ![Home screen with the three practice topics](docs/screenshot-home.png) | ![Fractions question with an answer field](docs/screenshot-question.png) |
+| ![Home screen with the three practice topics](screenshot-home.png) | ![Fractions question with an answer field](screenshot-question.png) |
 
 ---
 
