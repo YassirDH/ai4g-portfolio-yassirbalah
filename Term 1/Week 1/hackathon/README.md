@@ -48,16 +48,16 @@ The project supports **SDG 4: Quality Education** by providing personalised prac
 
 ## How to run
 
-Live version: see the links above.
+**Try the app:** https://learn-from-mistakes-4aet.bolt.host
 
-Or run locally:
+The source code lives in the Bolt project linked above. Open it in Bolt to
+browse the files or to run the app in the built-in preview. From Bolt you can
+also use Export > Download to get a zip and run it on your own machine:
 
 ```bash
 npm install
 npm run dev
 ```
-
-Then open the local URL shown in the terminal.
 
 **Built with:** Bolt.new, React, TypeScript, Vite and Tailwind CSS.
 

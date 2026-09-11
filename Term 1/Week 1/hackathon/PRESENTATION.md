@@ -1,7 +1,7 @@
 # Learn From Mistakes — Presentation
 
 Readable version of the pitch deck. The original slides are in
-[`Learn_From_Mistakes_Presentation.pptx`](Learn_From_Mistakes_Presentation.pptx).
+[`Learn_From_Mistakes_Presentation.pptx`](../presentation/Learn_From_Mistakes_Presentation.pptx).
 
 *AI for Good — Hackathon 1 · SDG 4: Quality Education · Built with Bolt.new (1-week prototype)*
 
