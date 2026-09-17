@@ -1,0 +1,9 @@
+# Ethical reflection
+
+**When it is wrong.** The air quality value is a regional model value with a resolution of about 11 km. It does not see a busy street, a neighbour burning wood or a local source, so AirCalm can stay silent on a moment that is genuinely bad for this user, or warn when their own street is fine. The AI adds a second risk: a language model can exaggerate, downplay or add things that are not in the data. We limited this by letting code, not the AI, decide the risk level and whether a warning is sent, and by instructing the model to use only the given values, not to judge concentrations itself, not to diagnose and never to advise on medication.
+
+**When it is late or down.** The workflow checks every two hours, so a sudden deterioration can be up to two hours old before the user sees it. The message also only arrives if the user opens Discord; we cannot guarantee it is read. If Open-Meteo, the OpenAI credit, the Discord webhook or n8n itself fails, no message arrives at all. Because the workflow also posts a short confirmation when the air is good, the channel keeps showing that the check is running; if those messages stop too, something is broken. It is still the user who has to notice that.
+
+**Would we trust it for our own health?** As extra information to plan a day, yes. As the only basis for a health decision, no. Someone who reads no warning should not conclude that the air is safe for them personally.
+
+**Where automation stops and a human takes over.** AirCalm only informs. As soon as someone has symptoms, their own care plan and their doctor take over, and the message says so explicitly. The threshold is a general index value that we chose ourselves; for personal use it should be set together with a healthcare provider, because one person reacts at a much lower value than another.
