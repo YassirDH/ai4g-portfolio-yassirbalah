@@ -1,0 +1,343 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "Enter your own url here (Discord, Telegram, etc)",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.output[0].content[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1952,
+        0
+      ],
+      "id": "8ecef2a4-7da0-45b7-b8bf-2229acd94951",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "https://air-quality-api.open-meteo.com/v1/air-quality",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{$json.latitude}}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{$json.longitude}}"
+            },
+            {
+              "name": "current",
+              "value": "european_aqi,european_aqi_pm2_5,european_aqi_pm10,european_aqi_nitrogen_dioxide,european_aqi_ozone,pm2_5,pm10,nitrogen_dioxide,ozone"
+            },
+            {
+              "name": "timezone",
+              "value": "Europe/Amsterdam"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "caab8810-1bcf-4ed0-bddf-4368f04704ca",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=IMPORTANT: Respond only in English.\n\nYou are an assistant that writes short, calm, practical air-quality messages for people with asthma or respiratory conditions.\n\nCurrent air quality data:\n- Risk level: {{ $json.risk_level }}\n- European AQI: {{ $json.aqi }}\n- Main pollutant: {{ $json.dominant_pollutant }}\n- PM2.5: {{ $json.pm2_5 }} µg/m³\n- PM10: {{ $json.pm10 }} µg/m³\n- NO2: {{ $json.no2 }} µg/m³\n- Ozone: {{ $json.ozone }} µg/m³\n\nWrite a short message of maximum 4 sentences.\n\nRequirements:\n- Clearly state the provided risk level.\n- Briefly explain what this risk level may mean for someone with asthma or a respiratory condition.\n- Mention the main pollutant.\n- Give one simple, practical precaution, such as reducing strenuous outdoor activity, taking breaks indoors, or choosing a lighter activity.\n- Keep the tone calm, clear, and reassuring.\n- Do not use alarming language.\n- Do not diagnose any medical condition.\n- Do not recommend starting, stopping, changing, or adjusting medication.\n- Do not invent information.\n- Do not independently decide whether individual pollutant concentrations are high or low.\n- Trust the provided risk level and do not contradict it.\n- Do not infer pollution sources, traffic conditions, weather conditions, locations, or times of day unless they are explicitly provided.\n- Use the pollutant values only as supporting context.\n- If symptoms occur or worsen, you may advise the user to follow their usual care plan or contact a healthcare professional.\n- End exactly with: \"This is general air-quality guidance, not medical advice.\"\n\nWrite the entire response in English."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "9fb51a3b-75b5-4b41-8525-8aef7bc08d51",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6ae1b8ee-93ba-434e-80c8-9989fec712dc",
+              "name": "city",
+              "value": "The Hague",
+              "type": "string"
+            },
+            {
+              "id": "c04f7d50-3b5f-4748-989c-1293b9594cf3",
+              "name": "latitude",
+              "value": 52.0705,
+              "type": "number"
+            },
+            {
+              "id": "ca3152a0-7b80-41ec-9c96-ad26261e7e9d",
+              "name": "longitude",
+              "value": 4.3007,
+              "type": "number"
+            },
+            {
+              "id": "0fbf163e-9b76-461b-b24a-8f71688a5126",
+              "name": "alert_threshold",
+              "value": 40,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8218be5a-1d50-4364-b3e7-1574db940cf0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const current = $json.current;\n\nconst pollutantIndexes = {\n  \"PM2.5\": current.european_aqi_pm2_5,\n  \"PM10\": current.european_aqi_pm10,\n  \"NO2\": current.european_aqi_nitrogen_dioxide,\n  \"O3\": current.european_aqi_ozone\n};\n\nconst dominantPollutant = Object.entries(pollutantIndexes)\n  .sort((a, b) => b[1] - a[1])[0][0];\n\nreturn {\n  time: current.time,\n  aqi: current.european_aqi,\n  pm2_5: current.pm2_5,\n  pm10: current.pm10,\n  no2: current.nitrogen_dioxide,\n  ozone: current.ozone,\n  dominant_pollutant: dominantPollutant\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "34d8ab39-9177-4769-9c74-fe6b7c39b9bd",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aqi = $json.aqi;\n\nlet riskLevel;\nlet alertNeeded;\n\nif (aqi < 40) {\n  riskLevel = \"LOW\";\n  alertNeeded = false;\n} else if (aqi < 60) {\n  riskLevel = \"MODERATE\";\n  alertNeeded = true;\n} else if (aqi < 80) {\n  riskLevel = \"HIGH\";\n  alertNeeded = true;\n} else if (aqi <= 100) {\n  riskLevel = \"VERY HIGH\";\n  alertNeeded = true;\n} else {\n  riskLevel = \"EXTREME\";\n  alertNeeded = true;\n}\n\nreturn {\n  ...$json,\n  risk_level: riskLevel,\n  alert_needed: alertNeeded\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "bb71ab38-2c78-4721-bb79-516d1b9aec88",
+      "name": "Determine RIsk"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "750f8833-12ca-4fc3-a5e9-d812e894f621",
+              "leftValue": "={{$json.alert_needed}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "ec2aad90-1522-4302-8ce8-a44f5240af00",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "Enter your own url here (Discord, Telegram, etc)",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{    \"✅ Air quality check completed.\\n\" +   \"Risk: \" + $json.risk_level + \"\\n\" +   \"AQI: \" + $json.aqi + \"\\n\" +   \"Main pollutant: \" + $json.dominant_pollutant + \"\\n\" +   \"No public warning was sent.\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1504,
+        176
+      ],
+      "id": "9932f3a2-c608-4ce4-b0e9-134a3e47b1a1",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "4c9cd356-34a4-4890-a4a7-5a331e0bcd09",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Determine RIsk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine RIsk": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b26ea9f1-d078-4e1d-9dd9-4ef039f0a157",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eb388fb50eb7aa279ed5b446ea9d30514e2da23c4242a7c921f8b2bf9ae940c0"
+  },
+  "nodeGroups": [],
+  "id": "NwNrg8vXgTdKHhC8",
+  "tags": []
+}
