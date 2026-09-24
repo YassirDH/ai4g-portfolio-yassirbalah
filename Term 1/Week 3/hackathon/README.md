@@ -3,7 +3,7 @@
 **Wegwijs turns "I'm in a city I don't know, with €10 and 4 hours" into a concrete, step-by-step day plan: where to go, what it costs and exactly how to get there, in the user's own language.**
 
 Hackathon 3: Equal Access · AI for Good · The Hague University of Applied Sciences
-Team: Yassir Balah & [VUL IN: naam teamgenoot]
+Team: Yassir Balah & Akif Olgun
 
 ## What it does
 
@@ -113,4 +113,4 @@ The biggest risk of Wegwijs is **confidently wrong advice to exactly the people 
 
 ## Demo
 
-[VUL IN: link naar de schermopname]
+    [Watch the demo video](https://youtu.be/Nc7pork8hK4)
