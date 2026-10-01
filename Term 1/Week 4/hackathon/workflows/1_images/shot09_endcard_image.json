@@ -1,0 +1,165 @@
+{
+  "id": "e8cbd327-0504-4711-864e-0069470ceaea",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "EmptyImage",
+      "pos": [
+        -1809.516102078558,
+        1453.0039345362795
+      ],
+      "size": [
+        270,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyImage"
+      },
+      "widgets_values": [
+        640,
+        640,
+        1,
+        0
+      ],
+      "widgets_values_named": {
+        "width": 640,
+        "height": 640,
+        "batch_size": 1,
+        "color": 0
+      }
+    },
+    {
+      "id": 2,
+      "type": "TextOverlay",
+      "pos": [
+        -1465.0704721575128,
+        1451.6526288269704
+      ],
+      "size": [
+        400,
+        208
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TextOverlay"
+      },
+      "widgets_values": [
+        "WHEN NATURE BECOMES SILENT,\nWE SHOULD LISTEN.",
+        48,
+        "#ffffff",
+        "top",
+        "center",
+        false
+      ],
+      "widgets_values_named": {
+        "text": "WHEN NATURE BECOMES SILENT,\nWE SHOULD LISTEN.",
+        "font_size": 48,
+        "color": "#ffffff",
+        "position": "top",
+        "align": "center",
+        "outline": false
+      }
+    },
+    {
+      "id": 3,
+      "type": "SaveImage",
+      "pos": [
+        -996.03006507371,
+        1475.976131594556
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "ComfyUI"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7400249944258265,
+      "offset": [
+        2839.341623504103,
+        -918.6973193238532
+      ]
+    },
+    "frontendVersion": "1.53.6"
+  },
+  "version": 0.4
+}
