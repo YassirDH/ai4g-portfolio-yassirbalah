@@ -7,7 +7,7 @@
 - **Collected data:** [data/comments.csv](data/comments.csv)
 - Hackathon 6 "Live Pulse" · SDG 9 · by Yassir
 
-> **Portfolio snapshot.** This folder is a copy of the live project, taken on 15 Oct 2026. The data snapshot holds **1,862 comments collected over 49 hours** (Tue 13 Oct 11:27 – Thu 15 Oct 13:18 UTC). The tool keeps running in its own repository, because GitHub Actions only runs workflows from a repository's root: **https://github.com/YassirDH/maintainer-druk-meter** (its commit history shows every 15-minute run). Live dashboard: **https://yassirdh.github.io/maintainer-druk-meter/**. In this copy the two GitHub Actions workflows are in `workflows/` (in the live repo they are in `.github/workflows/`). The slides are `slides.pptx`.
+> **Portfolio snapshot.** This folder is a copy of the live project, taken on 15 Oct 2026. The data snapshot holds **1,862 comments collected over 49 hours** (Tue 13 Oct 11:27 – Thu 15 Oct 13:18 UTC). The tool keeps running in its own repository, because GitHub Actions only runs workflows from a repository's root: **https://github.com/YassirDH/maintainer-druk-meter** (its commit history shows every 15-minute run). Live dashboard: **https://yassirdh.github.io/maintainer-druk-meter/**. In this copy the two GitHub Actions workflows are in `workflows/` (in the live repo they are in `.github/workflows/`). The slides are [`slides.pdf`](slides.pdf).
 
 
 ---

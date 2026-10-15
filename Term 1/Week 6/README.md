@@ -25,7 +25,7 @@ _List the files, or link to them. Notebook exports, screenshots, scripts._
 
 **Project title:** Maintainer Pressure Meter (Hackathon 6: Live Pulse)
 
-**My pair partner:** _[fill in: name, or "I worked alone"]_
+**My pair partner:** None, I worked alone on this hackathon.
 
 **Tool we had to use:** A pre-trained sentiment transformer from Hugging Face, run with the `transformers` library in my own code. I used `cardiffnlp/twitter-roberta-base-sentiment-latest` live, and compared it with `cardiffnlp/twitter-xlm-roberta-base-sentiment` and a simple word list.
 
@@ -40,20 +40,21 @@ A collector that runs every 15 minutes on GitHub Actions, fetches new issue and 
 **Link to the live thing (if any):**
 - Live dashboard: https://yassirdh.github.io/maintainer-druk-meter/
 - Live repository (collector running every 15 minutes, every run is a commit): https://github.com/YassirDH/maintainer-druk-meter
-- Snapshot of code, data (1,862 comments over 49+ hours), test and slides: [`hackathon/`](hackathon/)
+- Snapshot of code, data (1,862 comments over 49+ hours) and test: [`hackathon/`](hackathon/)
+- Slides: [`hackathon/slides.pdf`](hackathon/slides.pdf)
 
 **How do I run it?**
 See [`hackathon/README.md`](hackathon/README.md), section 8. Short version: copy the live repo, add a secret `HASH_SALT`, start the *Collect comments* workflow and turn on GitHub Pages. Locally: `pip install torch transformers requests`, then `python collect.py` and `python -m http.server` to open the dashboard.
 
 **Who did what?**
-_[adjust if you had a partner]_ I chose the topic, the user and the projects to follow, set up and ran the pipeline on GitHub, labelled the 50 test comments myself and chose the model based on the test. I used Claude (an AI coding assistant) to help write the code, the dashboard and the README, and to explain GitHub Actions to me.
+I did this project alone. I chose the topic, the user and the projects to follow, set up and ran the pipeline on GitHub, labelled the 50 test comments myself and chose the model based on the test. I used Claude (an AI coding assistant) to help write the code, the dashboard and the README, and to explain GitHub Actions to me.
 
 **Ethical reflection - what are the risks of your tool? Who could it harm?**
 The stream only contains people who write in English in public GitHub issues; the heaviest pressure on maintainers often happens in private messages or on mailing lists, and small projects like xz and zlib produced zero comments in 48 hours, so a calm line does not mean a project is healthy. The model was trained on tweets and reads programmer jargon (*issues*, *broken*, *failure*) as anger, while missing polite frustration ("would you mind…"). One very active account can move a project's line: for curl and NumPy, a third of the negative comments came from one account. If the fund trusted the line blindly, it could fund the wrong project, overlook a quiet vulnerable one, or label a project or person "toxic". What I did: no usernames are stored (authors only as a salted hash, @mentions replaced), every percentage is shown with its count and small samples are flagged, the dashboard warns when one account dominates, and the real comments are one click behind every peak, so a human reads before anything is decided. Full reflection in [`hackathon/README.md`](hackathon/README.md), section 6.
 
 ### Checklist
 - [x] Prototype code (or export / workflow file) is in `hackathon/`
-- [ ] This week's slides are in `hackathon/` _(add `slides.pptx`)_
+- [x] This week's slides are in `hackathon/` (`slides.pdf`)
 - [x] The prototype actually runs, and I wrote down how to run it
 - [x] Ethical reflection written above
 
@@ -74,6 +75,7 @@ The stream only contains people who write in English in public GitHub issues; th
 ## 4. Reflection
 
 **What is the most important thing I learned this week?**
+A model's score means nothing without a baseline and an honest test. My model agreed with my own labels 72% of the time, which sounded good until I saw that always answering "neutral" already scores 54%. The test also showed *where* it fails: it reads programmer jargon ("cause issues", "broken") as anger and misses polite frustration. And the biggest lesson came from the xz look-back: the model recognised 5 of the 6 real pressure messages from 2022, but my meter would have seen none of them, because they were on a mailing list. Choosing the right data source mattered more than choosing the right model.
 
 **Where does this connect to "AI for Good"?**
-_One concrete link to ethics, sustainability or social impact._
+Open-source software is shared digital infrastructure (SDG 9), and an overloaded maintainer is a security risk for everyone, as the xz backdoor showed. A meter like this can help funds send support where it is needed. But measuring how people write is sensitive, so I designed it as a pointer for a human, not a judge: no usernames are stored, every percentage comes with its count, the dashboard warns when one account dominates, and the real comments are always one click away.
