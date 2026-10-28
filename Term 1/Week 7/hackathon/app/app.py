@@ -19,59 +19,59 @@ AH_ALERT = 0.25   # extra warning when the Asian hornet score is at least this h
 
 INFO = {
     "asian_hornet": {
-        "name": "Aziatische hoornaar (Vespa velutina)",
+        "name": "Asian hornet (Vespa velutina)",
         "emoji": "🚨",
-        "status": "Invasieve exoot",
+        "status": "Invasive alien species",
         "advice": (
-            "**Meld deze waarneming met je foto op [waarneming.nl](https://waarneming.nl).** "
-            "Zonder foto wordt een melding niet behandeld. Zie je een nest? Blijf op afstand, "
-            "probeer het niet zelf weg te halen en meld het nest met je contactgegevens."
+            "**Report this sighting with your photo on [waarneming.nl](https://waarneming.nl).** "
+            "Reports without a photo are not handled. Found a nest? Keep your distance, "
+            "do not try to remove it yourself, and report the nest with your contact details."
         ),
         "check": [
-            "Lijf grotendeels **zwart / donkerbruin**",
-            "Eén **oranjegele band** achteraan het achterlijf",
-            "**Gele pootuiteinden** (daarom ook 'geelpoothoornaar')",
-            "Oranje gezicht, iets kleiner dan de Europese hoornaar",
+            "Body mostly **black / dark brown**",
+            "One **orange-yellow band** near the end of the abdomen",
+            "**Yellow leg tips** (hence the name 'yellow-legged hornet')",
+            "Orange face, a bit smaller than the European hornet",
         ],
     },
     "european_hornet": {
-        "name": "Europese hoornaar (Vespa crabro)",
+        "name": "European hornet (Vespa crabro)",
         "emoji": "🟤",
-        "status": "Inheems, hoort hier thuis",
+        "status": "Native, belongs here",
         "advice": (
-            "**Niet melden als Aziatische hoornaar.** Deze soort hoort in Nederland en eet onder andere "
-            "plaaginsecten. Laat hem met rust; alleen bij echte overlast is een nest verwijderen nodig."
+            "**Do not report it as an Asian hornet.** This species is native to the Netherlands and eats, "
+            "among other things, pest insects. Leave it alone; only remove a nest if it really causes problems."
         ),
         "check": [
-            "**Roodbruin** borststuk en kop",
-            "Achterlijf grotendeels **geel** met bruine/zwarte banden",
-            "**Roodbruine** poten",
-            "Groter dan de Aziatische hoornaar (tot ca. 3,5 cm)",
+            "**Reddish-brown** thorax and head",
+            "Abdomen mostly **yellow** with brown/black bands",
+            "**Reddish-brown** legs",
+            "Bigger than the Asian hornet (up to about 3.5 cm)",
         ],
     },
     "wasp": {
-        "name": "Wesp (Vespula)",
+        "name": "Wasp (Vespula)",
         "emoji": "🟡",
-        "status": "Inheems, algemeen",
-        "advice": "**Gewone wesp, niet melden.** Klein, zwart-geel gestreept en heel algemeen.",
+        "status": "Native, common",
+        "advice": "**Common wasp, nothing to report.** Small, black-and-yellow striped and very common.",
         "check": [
-            "Klein (1–1,5 cm)",
-            "Fel **zwart-geel** gestreept",
-            "Geel gezicht",
+            "Small (1–1.5 cm)",
+            "Bright **black-and-yellow** stripes",
+            "Yellow face",
         ],
     },
     "hornet_hoverfly": {
-        "name": "Hoornaarzweefvlieg (Volucella)",
+        "name": "Hornet hoverfly (Volucella)",
         "emoji": "🪰",
-        "status": "Inheems, onschuldig",
+        "status": "Native, harmless",
         "advice": (
-            "**Dit is een vlieg die een hoornaar nadoet. Hij kan niet steken.** "
-            "Het is een bestuiver, dus laat hem gerust."
+            "**This is a fly that mimics a hornet. It cannot sting.** "
+            "It is a pollinator, so leave it be."
         ),
         "check": [
-            "**Twee** vleugels (wespen en hoornaars hebben er vier)",
-            "Grote ogen, **korte stompe** sprieten",
-            "Geen smalle 'wespentaille'",
+            "**Two** wings (wasps and hornets have four)",
+            "Big eyes, **short stubby** antennae",
+            "No narrow 'wasp waist'",
         ],
     },
 }
@@ -87,41 +87,44 @@ def get_setting(name, default=""):
 st.set_page_config(page_title="Hornet Check", page_icon="🐝", layout="centered")
 st.title("🐝 Hornet Check")
 st.write(
-    "Is het een **Aziatische hoornaar**, of een onschuldige look-alike? "
-    "Upload een foto of maak er een. De app helpt je te beslissen of je het moet melden."
+    "Is it an **Asian hornet**, or a harmless look-alike? "
+    "Upload a photo or take one. The app helps you decide whether to report it."
 )
 
 model_id = get_setting("ROBOFLOW_MODEL", "")
 api_key = get_setting("ROBOFLOW_API_KEY")
 if not api_key or not model_id:
     with st.sidebar:
-        st.subheader("Instellingen")
-        model_id = st.text_input("Roboflow Model URL", model_id, help="Kopieer de Model URL van je model in Roboflow")
-        api_key = st.text_input("Roboflow API-key", type="password")
+        st.subheader("Settings")
+        model_id = st.text_input("Roboflow Model URL", model_id, help="Copy the Model URL of your model in Roboflow")
+        api_key = st.text_input("Roboflow API key", type="password")
     if not api_key or not model_id:
-        st.info("Vul links de Model URL en je Roboflow API-key in om te beginnen.")
+        st.info("Enter the Model URL and your Roboflow API key on the left to start.")
         st.stop()
 
-tab_upload, tab_camera = st.tabs(["📁 Foto uploaden", "📷 Foto maken"])
+tab_upload, tab_camera = st.tabs(["📁 Upload a photo", "📷 Take a photo"])
 with tab_upload:
-    uploaded = st.file_uploader("Kies een foto", type=["jpg", "jpeg", "png", "webp"])
+    uploaded = st.file_uploader("Choose a photo", type=["jpg", "jpeg", "png", "webp"])
 with tab_camera:
-    snapped = st.camera_input("Maak een foto")
+    snapped = st.camera_input("Take a photo")
 
 source = uploaded or snapped
 if source is None:
-    st.caption("Tip: zet **één** insect **groot en scherp** in beeld, liefst van boven of van opzij. "
-               "Kleine insecten in de verte en foto's met meerdere insecten gaan het vaakst fout.")
+    st.caption("Tip: photograph **one** insect, **large and sharp**, ideally from above or from the side. "
+               "Small insects far away and photos with several insects go wrong most often.")
     st.stop()
 
 image = Image.open(source)
-st.image(image, use_container_width=True)
+try:
+    st.image(image, width="stretch")  # newer Streamlit
+except Exception:
+    st.image(image, use_container_width=True)  # older Streamlit
 
-with st.spinner("Bezig met herkennen..."):
+with st.spinner("Recognising..."):
     try:
         scores = classify(image, model_id, api_key)
     except Exception as e:
-        st.error(f"Het model gaf geen antwoord: {e}")
+        st.error(f"The model did not answer: {e}")
         st.stop()
 
 # Roboflow can add an empty extra class (e.g. "placeholder"); only keep our four.
@@ -137,40 +140,40 @@ ah_score = dict(scores).get("asian_hornet", 0.0)
 # insect wins, we warn as soon as the Asian hornet score is noticeable.
 if top_class != "asian_hornet" and ah_score >= AH_ALERT:
     st.warning(
-        f"⚠️ **Let op:** het model geeft ook **{ah_score:.0%}** kans op een **Aziatische hoornaar**. "
-        "Controleer de kenmerken: zwart lijf met één oranje band, gele pootuiteinden, oranje gezicht. "
-        "Twijfel je? Meld het dan met foto op [waarneming.nl](https://waarneming.nl), een expert kijkt mee."
+        f"⚠️ **Careful:** the model also gives a **{ah_score:.0%}** chance of an **Asian hornet**. "
+        "Check the features: black body with one orange band, yellow leg tips, orange face. "
+        "In doubt? Report it with your photo on [waarneming.nl](https://waarneming.nl) and an expert will check it."
     )
 
 if top_class == "none":
     st.warning(
-        "### 🤔 Niets herkend\nHet model herkent geen van de vier soorten. Staat het insect groot en scherp "
-        "in beeld, en staat er maar één insect op de foto? Probeer anders een nieuwe foto."
+        "### 🤔 Nothing recognised\nThe model does not recognise any of the four species. Is the insect large "
+        "and sharp, and is there only one insect in the photo? If not, try a new photo."
     )
 elif info is None:
-    st.warning(f"Onbekende klasse van het model: {top_class}")
+    st.warning(f"Unknown class from the model: {top_class}")
 elif top_conf < CONFIDENT:
     st.warning(
-        f"### 🤔 Niet zeker\n"
-        f"Het model twijfelt (hoogste score {top_conf:.0%} voor *{info['name']}*). "
-        "Maak een scherpere foto van dichterbij, of laat de foto beoordelen op "
-        "[waarneming.nl](https://waarneming.nl). Misschien is het ook geen van deze vier soorten."
+        f"### 🤔 Not sure\n"
+        f"The model is in doubt (highest score {top_conf:.0%} for *{info['name']}*). "
+        "Take a sharper photo from closer by, or let experts judge the photo on "
+        "[waarneming.nl](https://waarneming.nl). It may also be none of these four species."
     )
 else:
     box = st.error if top_class == "asian_hornet" else st.success
-    box(f"### {info['emoji']} {info['name']}\n**{top_conf:.0%} zeker** · {info['status']}")
+    box(f"### {info['emoji']} {info['name']}\n**{top_conf:.0%} sure** · {info['status']}")
     st.markdown(info["advice"])
-    st.markdown("**Controleer het zelf, kijk naar:**")
+    st.markdown("**Check it yourself, look for:**")
     for item in info["check"]:
         st.markdown(f"- {item}")
 
-with st.expander("Alle scores van het model"):
+with st.expander("All scores from the model"):
     for cls, conf in scores:
         st.progress(min(max(conf, 0.0), 1.0), text=f"{INFO.get(cls, {}).get('name', cls)}: {conf:.0%}")
 
 st.divider()
 st.caption(
-    "Hornet Check is een studentenproject (HHS, AI for Good). Het model is getraind op 600 Nederlandse "
-    "foto's van iNaturalist en kent alleen deze vier soorten. Het kan fout zijn: zie het als hulp, "
-    "niet als officiële determinatie. Bij een nest of steekincident: altijd een expert laten kijken."
+    "Hornet Check is a student project (The Hague University of Applied Sciences, AI for Good). The model "
+    "was trained on 600 Dutch iNaturalist photos and only knows these four species. It can be wrong: use it "
+    "as a first check, not as an official identification. For a nest or a sting incident, always ask an expert."
 )

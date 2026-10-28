@@ -38,12 +38,13 @@ The user is a Dutch resident, gardener or beekeeper who sees a big hornet-like i
 A Streamlit app: upload a photo or take one with your camera, and the app shows the most likely insect, how sure the model is, what to do (report on waarneming.nl or leave it), and 3-4 features to check yourself. Below 60% confidence it says "not sure" instead of guessing, and it adds an extra warning when the Asian hornet score is 25% or more, because a missed Asian hornet is the worst mistake. The dataset (700 photos) was scraped with our own script from Dutch, research-grade, openly licensed iNaturalist observations; 600 were used to train in Roboflow and 100 were kept apart for an honest test.
 
 **Link to the live thing (if any):**
+- Live app (try it with your own photo): https://hornet.streamlit.app
+- Dataset scraper in Google Colab (rebuilds our dataset with Runtime → Run all): [open in Colab](https://colab.research.google.com/github/YassirDH/ai4g-portfolio-yassirbalah/blob/main/Term%201/Week%207/hackathon/scraper/hornet_check_scraper.ipynb)
 - Code, test photos, results and data card: [`hackathon/`](hackathon/)
 - Slides: [`hackathon/slides.pdf`](hackathon/slides.pdf)
-- The app runs locally (see below) and is shown live in the presentation.
 
 **How do I run it?**
-See [`hackathon/README.md`](hackathon/README.md). Short version: `cd hackathon/app`, `pip install -r requirements.txt`, `streamlit run app.py`, then paste a Roboflow API key and the Model URL in the sidebar. `python evaluate.py` repeats the test on the 100 unseen photos.
+Easiest: open the live app above. To run it yourself, see [`hackathon/README.md`](hackathon/README.md). Short version: in `hackathon/` run `pip install -r requirements.txt`, then `cd app` and `streamlit run app.py`, then paste a Roboflow API key and the Model URL in the sidebar. `python evaluate.py` repeats the test on the 100 unseen photos.
 
 **Who did what?**
 We communicated with each other about the project during the week. We used Claude (an AI assistant) to help with the scraper, the app code, the test script and the README, and to explain the Roboflow results to us.
