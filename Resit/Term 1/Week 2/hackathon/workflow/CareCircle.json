@@ -1,0 +1,1139 @@
+{
+  "name": "CareCircle",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        -192
+      ],
+      "id": "8746d546-daf6-4ff8-bae9-90997e16b0b5",
+      "name": "Telegram Trigger",
+      "webhookId": "5bbddf45-3a0d-4ef5-8e2d-ccce871f81f4",
+      "credentials": {
+        "telegramApi": {
+          "id": "ExeathjeLSyepxdX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0e7aded1-50a9-4c1a-a300-1d652105a7b9",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        -192
+      ],
+      "id": "ea5e778a-b47c-46ea-8878-258fc34b0c3a",
+      "name": "Text Messages Only"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f25a3f02-e215-47bb-bb57-d96032f1e130",
+              "name": "sender",
+              "value": "={{ $json.message.from.first_name === 'Hallo' ? 'Mo' : $json.message.from.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "dc275db3-3932-4fe7-97ff-d928b860afea",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "d5a05a0f-04f6-48df-96f1-999711d58572",
+              "name": "chat_id",
+              "value": "={{ String($json.message.chat.id) }}",
+              "type": "string"
+            },
+            {
+              "id": "553f48d6-75a2-49e3-8acc-f89abef34fa3",
+              "name": "message_id",
+              "value": "={{ $json.message.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "b34de631-adde-455d-a50b-651d2bc037d8",
+              "name": "timestamp",
+              "value": "={{ $now.setZone('Europe/Amsterdam').toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "9aa7ff1e-22ed-49df-a099-c1dcabbeabee",
+              "name": "coordinator",
+              "value": "Yassir",
+              "type": "string"
+            },
+            {
+              "id": "8e0c2577-9946-48d1-8410-3621979df90d",
+              "name": "care_profile",
+              "value": "Care recipient: Ria, 82, early-stage Alzheimer's dementia, lives alone in her own flat. Takes morning and evening medication from a weekly blister pack. GP: Dr. de Vries. Care team (Telegram first names): Yassir (grandson, coordinator), Mo (son), Daan (grandson).",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        -192
+      ],
+      "id": "a9ace3a6-8336-46ab-a196-0d16414bf155",
+      "name": "Prepare Message"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are CareCircle, an assistant that keeps a shared care log for a family who care for an older relative at home. You never give medical advice, diagnoses or medication advice.\n\nCARE PROFILE:\n{{ $json.care_profile }}\n\nTODAY: {{ $json.timestamp }}\n\nNEW MESSAGE from {{ $json.sender }}:\n\"\"\"{{ $json.text }}\"\"\"\n\nAnalyse the message. Reply with ONLY one JSON object, no markdown and no explanation, in exactly this shape:\n{\n  \"is_care_update\": true,\n  \"categories\": [\"medication\"],\n  \"urgency\": \"routine\",\n  \"summary\": \"\",\n  \"tasks\": [{\"task\": \"\", \"owner\": \"\", \"due\": \"\"}],\n  \"follow_up\": \"\"\n}\n\nFIELDS\n- is_care_update: false if the message is not about care (e.g. \"hi\", \"thanks\", \"ok\"), otherwise true.\n- categories: one or more of medication, nutrition, fall_or_injury, cognition, mood, sleep, mobility, appointment, hygiene, social, caregiver_strain, other.\n- urgency: \"urgent\", \"attention\" or \"routine\" (rules below).\n- summary: one neutral sentence in English, max 25 words, only facts that are in the message.\n- tasks: only tasks that clearly need doing. owner = a name from the care team only if the message says who will do it or the sender volunteers, otherwise \"unassigned\". due = YYYY-MM-DD if a day is mentioned, otherwise \"\". Empty array if there are no tasks.\n- follow_up: one short question to the sender if important information is missing (for example whether the evening medication was taken), otherwise \"\".\n\nURGENCY RULES\n- urgent: possible emergency or sudden change: a fall, injury, chest pain, breathing problems, not responding, sudden severe confusion, wandering off or missing, no food or drink for more than a day, a possible medication overdose or mix-up.\n- attention: something the family should act on or watch: missed medication, eating poorly, increasing forgetfulness, low mood, an appointment or errand to arrange, a caregiver who sounds exhausted or overwhelmed.\n- routine: a normal update with nothing to act on.\n- If you are unsure between two levels, choose the higher one.\n\nOTHER RULES\n- Messages may be in Dutch or English. Always write summary, tasks and follow_up in English.\n- Never invent facts. Never suggest starting, stopping or changing medication."
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1616,
+        -192
+      ],
+      "id": "f2dfc62b-a97a-40db-8cdf-93957968c8b9",
+      "name": "Understand Update (AI)"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        32
+      ],
+      "id": "de0ac1c5-6d05-47dc-9a80-d2b73e0e4245",
+      "name": "Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "687n9WTkmded8qwL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// SAFETY NET: code checks the AI. Code always has the final say on escalation.\nconst input = $('Prepare Message').item.json;\nconst raw = String($json.text || '').replace(/```json|```/g, '').trim();\n\nlet ai;\nlet parseError = false;\ntry {\n  ai = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));\n} catch (e) {\n  parseError = true;\n  ai = {\n    is_care_update: true,\n    categories: ['other'],\n    urgency: 'attention',\n    summary: 'CareCircle could not interpret this message. Please read it yourself.',\n    tasks: [],\n    follow_up: ''\n  };\n}\n\nconst levels = ['routine', 'attention', 'urgent'];\nlet urgency = levels.includes(ai.urgency) ? ai.urgency : 'attention';\nlet override = parseError ? 'AI output unreadable, set to attention for a human check' : '';\n\n// Red-flag words (English + Dutch) ALWAYS escalate to urgent, whatever the AI decided.\nconst redFlags = [\n  /\\bfell\\b/, /\\bfallen\\b/, /\\bhad a fall\\b/, /\\bon the floor\\b/, /\\bunconscious\\b/,\n  /\\bunresponsive\\b/, /\\bnot responding\\b/, /\\bchest pain\\b/, /\\bcan'?t breathe\\b/,\n  /\\bshort of breath\\b/, /\\bbleeding\\b/, /\\bambulance\\b/, /\\b112\\b/, /\\bwent missing\\b/,\n  /\\bwandered off\\b/, /\\bgevallen\\b/, /\\bop de grond\\b/, /\\bbewusteloos\\b/,\n  /\\breageert niet\\b/, /\\bpijn op de borst\\b/, /\\bbenauwd\\b/, /\\bkortademig\\b/,\n  /\\bbloedt\\b/, /\\bvermist\\b/, /\\bweggelopen\\b/\n];\nconst text = String(input.text).toLowerCase();\nconst hit = redFlags.map(r => text.match(r)).find(m => m);\nif (hit && urgency !== 'urgent') {\n  urgency = 'urgent';\n  override = `Escalated by safety rule (keyword: \"${hit[0]}\")`;\n}\n\nlet route = urgency;\nif (!parseError && ai.is_care_update === false && !hit) route = 'ignore';\n\nconst tasks = (Array.isArray(ai.tasks) ? ai.tasks : [])\n  .filter(t => t && t.task)\n  .map(t => ({ task: String(t.task), owner: t.owner ? String(t.owner) : 'unassigned', due: t.due ? String(t.due) : '' }));\n\nreturn {\n  json: {\n    timestamp: input.timestamp,\n    sender: input.sender,\n    message: input.text,\n    chat_id: input.chat_id,\n    message_id: input.message_id,\n    categories: (Array.isArray(ai.categories) ? ai.categories : ['other']).join(', '),\n    urgency,\n    summary: String(ai.summary || ''),\n    follow_up: String(ai.follow_up || ''),\n    safety_override: override,\n    tasks,\n    route\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        -192
+      ],
+      "id": "69148f41-076e-44b8-ad96-b2b91b0a33fe",
+      "name": "Safety Net"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1cf0c54-0aec-4247-8cac-a8b253551a02",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "ignore",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2128,
+        -192
+      ],
+      "id": "14ac3d76-129e-4b9a-9f91-b53a73a26365",
+      "name": "Care Updates Only"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp}}",
+            "sender": "={{ $json.sender }}",
+            "message": "={{ $json.message }}",
+            "categories": "={{ $json.categories }}",
+            "urgency": "={{ $json.urgency }}",
+            "summary": "={{ $json.summary }}",
+            "follow_up": "={{ $json.follow_up }}",
+            "safety_override": "={{ $json.safety_override }}",
+            "chat_id": "={{ $json.chat_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "categories",
+              "displayName": "categories",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "follow_up",
+              "displayName": "follow_up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "safety_override",
+              "displayName": "safety_override",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2352,
+        -192
+      ],
+      "id": "4b86dcff-8ae6-4393-ab8d-4c8de8f17fde",
+      "name": "Save to Care Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4e9c85ad-9679-404d-bd97-ba7c18aa40a5",
+                    "leftValue": "={{ $('Safety Net').item.json.route }}",
+                    "rightValue": "urgent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Urgent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "77bf94e5-84fa-4de9-bd59-fe09951f1924",
+                    "leftValue": "={{ $('Safety Net').item.json.route }}",
+                    "rightValue": "attention",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Attention"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "11b73bda-156d-45f6-a416-3225c41a4ddc",
+                    "leftValue": "={{ $('Safety Net').item.json.route }}",
+                    "rightValue": "routine",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Routine"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2576,
+        -192
+      ],
+      "id": "6e8b9981-1c87-4ce5-b7a1-945f52b99494",
+      "name": "Route by Urgency"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Safety Net').item.json.chat_id }}",
+        "text": "=🚨 URGENT – CareCircle\n\n{{ $('Safety Net').item.json.sender }} reported: {{ $('Safety Net').item.json.summary }}\n\nThis may need immediate attention. CareCircle cannot judge medical situations, a person has to act now:\n• Life-threatening (not responding, not breathing, severe chest pain)? Call 112.\n• Otherwise call Ria's GP now, or the huisartsenpost (GP out-of-hours service) in the evening or weekend.\n\n{{ $('Prepare Message').item.json.coordinator }}, please confirm in this group who is handling this.{{ $('Safety Net').item.json.safety_override ? '\\n\\n(' + $('Safety Net').item.json.safety_override + ')' : '' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Safety Net').item.json.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2816,
+        -416
+      ],
+      "id": "20716eaf-4671-4324-b871-9afc5096cf33",
+      "name": "Urgent Alert",
+      "webhookId": "f569649b-0565-4380-83ab-7900319337dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "ExeathjeLSyepxdX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Safety Net').item.json.chat_id }}",
+        "text": "=🟠 Noted, needs attention\n{{ $('Safety Net').item.json.summary }}{{ $('Safety Net').item.json.tasks.length ? '\\n\\n📋 Tasks:\\n' + $('Safety Net').item.json.tasks.map(t => '• ' + t.task + ' → ' + t.owner + (t.due ? ' (by ' + t.due + ')' : '')).join('\\n') : '' }}{{ $('Safety Net').item.json.follow_up ? '\\n\\n❓ ' + $('Safety Net').item.json.follow_up : '' }}{{ $('Safety Net').item.json.safety_override ? '\\n\\n(' + $('Safety Net').item.json.safety_override + ')' : '' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Safety Net').item.json.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2816,
+        -192
+      ],
+      "id": "5e2b6402-7806-4b7c-8f76-3c960defe4e8",
+      "name": "Attention Reply",
+      "webhookId": "2159f198-b6b3-4cc6-9588-1d8f56ed827e",
+      "credentials": {
+        "telegramApi": {
+          "id": "ExeathjeLSyepxdX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Safety Net').item.json.chat_id }}",
+        "text": "=✅ Logged: {{ $('Safety Net').item.json.summary }}{{ $('Safety Net').item.json.follow_up ? '\\n❓ ' + $('Safety Net').item.json.follow_up : '' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Safety Net').item.json.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2816,
+        32
+      ],
+      "id": "cb95a920-0094-478a-ac4b-2c30b027fe51",
+      "name": "Routine Reply",
+      "webhookId": "d04a9dff-bf64-4751-9b92-0177094bd02f",
+      "credentials": {
+        "telegramApi": {
+          "id": "ExeathjeLSyepxdX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One row per task the AI found. No tasks = nothing is saved.\nconst s = $('Safety Net').first().json;\nreturn (s.tasks || []).map(t => ({\n  json: {\n    created: s.timestamp,\n    task: t.task,\n    owner: t.owner,\n    due: t.due,\n    status: 'open',\n    source_message: s.message\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3024,
+        -192
+      ],
+      "id": "f7267d51-4ffc-46e3-9723-de25f2a17a99",
+      "name": "Prepare Tasks"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1848448652,
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=1848448652"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "created": "={{ $json.created }}",
+            "task": "={{ $json.task }}",
+            "owner": "={{ $json.owner }}",
+            "due": "={{ $json.due }}",
+            "status": "={{ $json.status }}",
+            "source_message": "={{ $json.source_message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "created",
+              "displayName": "created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task",
+              "displayName": "task",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "owner",
+              "displayName": "owner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due",
+              "displayName": "due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3248,
+        -192
+      ],
+      "id": "1bce14a2-8e31-4bd5-8cfe-9801390bf99a",
+      "name": "Save Tasks",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        416
+      ],
+      "id": "374de2f1-ad41-4e3d-b68e-61d9c2fe21e3",
+      "name": "Every Sunday 19:00"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1168,
+        416
+      ],
+      "id": "df99d39b-d624-4b8a-93aa-ba516994382e",
+      "name": "Read Care Log",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1848448652,
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=1848448652"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1392,
+        416
+      ],
+      "id": "bde00e36-8edd-4df3-810c-2afe2dc5dbc1",
+      "name": "Read Tasks",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 828400753,
+          "mode": "list",
+          "cachedResultName": "Reports",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=828400753"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1616,
+        416
+      ],
+      "id": "176f7339-310b-4697-b1e5-6cc5f5931832",
+      "name": "Read Last Report",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds the facts for the weekly report. Code counts, AI interprets.\nconst now = DateTime.now().setZone('Europe/Amsterdam');\nconst weekStart = now.minus({ days: 7 });\n\nconst parse = v => {\n  const s = String(v || '');\n  let d = DateTime.fromFormat(s, 'yyyy-MM-dd HH:mm', { zone: 'Europe/Amsterdam' });\n  if (!d.isValid) d = DateTime.fromISO(s.replace(' ', 'T'), { zone: 'Europe/Amsterdam' });\n  return d;\n};\n\nconst log = $('Read Care Log').all().map(i => i.json).filter(r => r.timestamp);\nconst week = log.filter(r => { const d = parse(r.timestamp); return d.isValid && d >= weekStart; });\n\nconst count = (arr, key, split = false) => {\n  const out = {};\n  arr.forEach(r => {\n    const vals = split ? String(r[key] || '').split(',') : [r[key]];\n    vals.map(v => String(v || '').trim()).filter(Boolean).forEach(v => out[v] = (out[v] || 0) + 1);\n  });\n  return out;\n};\n\nconst tasks = $('Read Tasks').all().map(i => i.json).filter(t => t.task);\nconst open = tasks.filter(t => String(t.status || '').toLowerCase() !== 'done');\n\nconst reports = $('Read Last Report').all().map(i => i.json).filter(r => r.report);\nconst lastReport = reports.length ? reports[reports.length - 1].report : 'No previous report: this is the first week.';\n\nconst chatRow = [...log].reverse().find(r => r.chat_id);\nif (!chatRow) return []; // nothing logged yet, so there is no group to report to\n\nreturn [{\n  json: {\n    chat_id: String(chatRow.chat_id),\n    week_start: weekStart.toFormat('yyyy-MM-dd'),\n    week_end: now.toFormat('yyyy-MM-dd'),\n    total_updates: week.length,\n    by_category: JSON.stringify(count(week, 'categories', true)),\n    by_urgency: JSON.stringify(count(week, 'urgency')),\n    updates_by_person: JSON.stringify(count(week, 'sender')),\n    open_tasks_by_owner: JSON.stringify(count(open, 'owner')),\n    open_tasks: open.map(t => `- ${t.task} (owner: ${t.owner || 'unassigned'}${t.due ? ', due ' + t.due : ''})`).join('\\n') || 'none',\n    week_log: week.map(r => `[${r.timestamp}] ${r.sender} | ${r.urgency} | ${r.categories} | ${r.summary}`).join('\\n') || 'no updates this week',\n    last_report: lastReport\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        416
+      ],
+      "id": "606b0b57-3f82-436a-97cc-4a0b6db3d0a0",
+      "name": "Weekly Stats"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are CareCircle. Write this week's care report for the family who care for Ria. You never diagnose and never give medical or medication advice.\n\nCARE PROFILE:\nCare recipient: Ria, 82, early-stage Alzheimer's dementia, lives alone in her own flat. Takes morning and evening medication from a weekly blister pack. GP: Dr. de Vries. Care team (Telegram first names): Yassir (grandson, coordinator), Mo (son), Daan (grandson).\n\nPERIOD: {{ $json.week_start }} to {{ $json.week_end }}\nTOTAL UPDATES: {{ $json.total_updates }}\nUPDATES PER CATEGORY: {{ $json.by_category }}\nUPDATES PER URGENCY: {{ $json.by_urgency }}\nUPDATES PER PERSON: {{ $json.updates_by_person }}\nOPEN TASKS PER OWNER: {{ $json.open_tasks_by_owner }}\n\nOPEN TASKS:\n{{ $json.open_tasks }}\n\nTHIS WEEK'S LOG:\n{{ $json.week_log }}\n\nLAST WEEK'S REPORT:\n{{ $json.last_report }}\n\nWrite the report as a plain-text Telegram message (no markdown symbols like ** or #), max 250 words, in English, with exactly these parts:\n\n📊 Weekly care report – {{ $json.week_start }} to {{ $json.week_end }}\n\n1. This week in short: 2–3 sentences.\n2. Patterns and changes: only patterns supported by at least two log entries, with counts (e.g. \"poor eating on 3 days\"). Compare with last week's report where possible. If there is too little data, say so.\n3. Open tasks: who has what; point out unassigned tasks.\n4. Care load: how updates and open tasks are spread over the family. If one person sends more than 60% of the updates or holds most open tasks, gently suggest sharing the load. No blame.\n5. Questions for the GP: 2–4 neutral questions based on the observations, for the family to bring to the next GP contact.\n\nEnd with exactly: \"This report summarises family observations. It is not a medical assessment.\"\n\nUse only the data above. Never invent events, numbers or names."
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2048,
+        416
+      ],
+      "id": "9be6772a-6102-457e-96e7-734ce0e8349f",
+      "name": "Write Weekly Report (AI)"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        624
+      ],
+      "id": "b855fbf9-ad4e-4510-8bb6-fb1b9593a448",
+      "name": "Gemini Model (Weekly)",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "687n9WTkmded8qwL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Weekly Stats').item.json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        416
+      ],
+      "id": "8b2439db-9276-49f7-aba0-c13046f0b2b3",
+      "name": "Send Weekly Report",
+      "webhookId": "18e73490-267f-4574-ad95-a7d11313f035",
+      "credentials": {
+        "telegramApi": {
+          "id": "ExeathjeLSyepxdX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM",
+          "mode": "list",
+          "cachedResultName": "CareCircle",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 828400753,
+          "mode": "list",
+          "cachedResultName": "Reports",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q2tIhU0HY0tI-yYB756-ZpEF52n6Yuvc774XNBy5fSM/edit#gid=828400753"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "week_start": "={{ $('Weekly Stats').item.json.week_start }}",
+            "week_end": "={{ $('Weekly Stats').item.json.week_end }}",
+            "report": "={{ $('Write Weekly Report (AI)').item.json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "week_start",
+              "displayName": "week_start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "week_end",
+              "displayName": "week_end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "report",
+              "displayName": "report",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2576,
+        416
+      ],
+      "id": "15591277-2059-4969-9784-fa851c73346c",
+      "name": "Save Report",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u8d9NW6NK8oynfBJ",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Messages Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Messages Only": {
+      "main": [
+        [
+          {
+            "node": "Prepare Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Message": {
+      "main": [
+        [
+          {
+            "node": "Understand Update (AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Understand Update (AI)": {
+      "main": [
+        [
+          {
+            "node": "Safety Net",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Understand Update (AI)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safety Net": {
+      "main": [
+        [
+          {
+            "node": "Care Updates Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Care Updates Only": {
+      "main": [
+        [
+          {
+            "node": "Save to Care Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Care Log": {
+      "main": [
+        [
+          {
+            "node": "Route by Urgency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Urgency": {
+      "main": [
+        [
+          {
+            "node": "Urgent Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Attention Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Routine Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attention Reply": {
+      "main": [
+        [
+          {
+            "node": "Prepare Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Tasks": {
+      "main": [
+        [
+          {
+            "node": "Save Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Sunday 19:00": {
+      "main": [
+        [
+          {
+            "node": "Read Care Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Care Log": {
+      "main": [
+        [
+          {
+            "node": "Read Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tasks": {
+      "main": [
+        [
+          {
+            "node": "Read Last Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Last Report": {
+      "main": [
+        [
+          {
+            "node": "Weekly Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Stats": {
+      "main": [
+        [
+          {
+            "node": "Write Weekly Report (AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model (Weekly)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Weekly Report (AI)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Weekly Report (AI)": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Save Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "eae0778f-64cf-474e-a7f3-63d3ec0ce4c3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1212bd68488b64eb0311792e257135571db7115efafadd76d14bd5908eaa775"
+  },
+  "nodeGroups": [],
+  "id": "VlkfUDZcUaVDOZbS",
+  "tags": []
+}
