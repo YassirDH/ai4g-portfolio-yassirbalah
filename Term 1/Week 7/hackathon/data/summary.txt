@@ -1,0 +1,12 @@
+asian_hornet     unseen  25
+asian_hornet     train   150
+european_hornet  unseen  25
+european_hornet  train   150
+wasp             unseen  25
+wasp             train   150
+hornet_hoverfly  unseen  25
+hornet_hoverfly  train   150
+
+Different photographers per class: asian_hornet=131, european_hornet=120, wasp=107, hornet_hoverfly=132
+Licences: cc-by-nc=612, cc-by=59, cc0=29
+Total images: 700
